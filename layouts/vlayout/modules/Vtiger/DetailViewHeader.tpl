@@ -26,7 +26,7 @@
 						<div class="pull-right detailViewButtoncontainer">
 							<div class="btn-toolbar">
 							<!-- jmangarret BOTON DE ACCION PROCESAR EN VISTA DETALLE DEL LOCALIZADOR, may2016 !-->				   
-							{if $MODULE eq 'Localizadores'}
+							{if $MODULE eq 'Localizadores' && $USER_MODEL->getParentRoleSequence()|count_characters<=18}
 							<span class="btn-group">
 									<a href="javascript:void(0);">
 									<button id="{$MODULE}_detail_basicAction_Process" class="btn addButton">

@@ -5,6 +5,12 @@
 
 	// 24/11/2016 RURIEPE - SE REALILZA SIMPLIFICACION DE CONSULTAS SQL DE 8 CONSULTAS QUE SE REALIZABAN SE REDUJO A 4, DE IGUAL FORMA SE REALIZAN UNIONES EN LAS OPCIONES 1,2 Y 3 PARA OBTENER LOS SOTOS QUE SOLO TENGAN EL REGISTRO DE VENTAS COMPLETO, ASI COMO QUE SE VALIDA QUE EL LOCALIZADOR SE ENCUENTRE RELACIONADO A UN REGISTRO DE VENTAS, EN LA OPCION 4 SOLO SE MOSTRARAN SE TOTALIZARA AQUELLOS BOLETOS QUE TENGAN EL REGISTRO DE VENTAS COMPLETO. SE REALILZA DENTRO DE LAS CONDICIONES DONDE SE TOTALIZAN LOS CONTADORES QUE SI EL REGISTRO DE SERVI Y ES  DIFERENTE DE ANULADO Y LA MONE DEL PROUCTO ES IGUAL A VEF ESTE DESCUENTE ESTE BOLETO DEL TOTAL.
 
+	// 25/11/2016 RURIEPE - SE AGREGA CONDICIONE DE AEROLINEAS EN CONSULTAS SQL, SE CAMBIA INNEJOR JOIN REGISTRO DE VENTAS POR LEFT JOIN SOLO PARA AMADEUS, KIU Y WEB AEROLINEA
+
+	// 5/12/2016 RURIEPE / JMANGARRET - SE AGREGAN LAS SIGUIENTES CONDCIONES bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
+
+	// 16/12/2016 RURIEPE - SE AGREGA SUBCONSULTA PARA OBTENER LOS REGISTROS (SOTOS) DONDE EL REGISTRO DE VENTAS TENGA UN PAGO AGREGADO
+
 	include("../../config.inc.php");
 
 	$user=$dbconfig['db_username'];
@@ -94,13 +100,34 @@
 		}
 	}
 
+	// 25/11/206 RURIEPE - SELECT AEROLINEA
+	if ($_REQUEST["accion"]=="select_aerolinea")
+	{
+		$query = "SELECT airline FROM vtiger_airline ORDER BY airline ASC";
+
+		if($filtro = mysql_query($query))
+		{
+		    if (mysql_num_rows($filtro) > 0)
+		    {
+		        while ($row = mysql_fetch_array($filtro)) 
+		        {	
+		        	if ($row["airline"]!=NULL) 
+		        	{
+		        		echo"<option>".$row["airline"]."</option>";
+		        	}
+		        }
+		    }
+		}
+	}
+
 	$campos="loc.localizadoresid,
 	loc.localizador,
 	loc.contactoid,
 	loc.paymentmethod,
 	loc.registrodeventasid,
 	loc.procesado,
-	loc.gds,bol.amount,
+	loc.gds,
+	bol.amount,
 	bol.fecha_emision,
 	bol.boleto1,
 	bol.boletosid,
@@ -108,8 +135,7 @@
 	bol.status,
 	bol.currency,
 	usu.first_name,
-	usu.last_name,
-	rdv.registrodeventasname ";
+	usu.last_name ";
 
 	//RESPONSE LISTAR RESULTADOS DE LA BUSQUEDA
 	if ($_REQUEST["accion"]=="listarBusqueda")
@@ -122,7 +148,7 @@
 			FROM vtiger_localizadores AS loc 
 			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid 
-			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid ";
+			LEFT JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid ";
 
 			if ($_REQUEST["satelite"])
 				$query.="
@@ -131,7 +157,9 @@
 
 			$query.="
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE en.deleted=0
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores')
 			AND bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR  loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea')";
 
@@ -153,8 +181,8 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
+			if ($_REQUEST["aerolinea"])
+				$query.=" AND loc.airline = '".$_REQUEST["aerolinea"]."' ";
 
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."' ";
@@ -173,10 +201,14 @@
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE en.deleted=0 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores')
 			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea') 
-			AND loc.registrodeventasid
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_881 != '' AND cf_861 != '') ";
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -196,12 +228,12 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
+			if ($_REQUEST["aerolinea"])
+				$query.=" AND loc.airline = '".$_REQUEST["aerolinea"]."' ";
 
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."'";
-				$query.=") ORDER BY fecha_emision DESC ";
+				$query.=" ) ORDER BY fecha_emision DESC ";
 		}
 		else if ($_REQUEST["tventa"] == 2 )
 		{
@@ -213,8 +245,9 @@
 			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-			WHERE en.deleted=0 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
 			AND (contactoid IS NULL 
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
@@ -237,8 +270,8 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
+			if ($_REQUEST["aerolinea"])
+				$query.=" AND loc.airline = '".$_REQUEST["aerolinea"]."' ";
 
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."'";
@@ -257,14 +290,18 @@
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE en.deleted=0 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores')  
 			AND (contactoid IS NULL 
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
 			WHERE isSatelite IS NULL OR isSatelite='0' OR isSatelite=''))
 			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea') 
-			AND loc.registrodeventasid
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_881 != '' AND cf_861 != '') ";
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -284,8 +321,8 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
+			if ($_REQUEST["aerolinea"])
+				$query.=" AND loc.airline = '".$_REQUEST["aerolinea"]."' ";
 
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."'";
@@ -299,14 +336,15 @@
 			FROM vtiger_localizadores AS loc 
 			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
-			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid
-			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid = loc.registrodeventasid ";
+			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 			
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE en.deleted=0 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
 			AND con.isSatelite='1' 
 			AND bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR  loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea')";
@@ -329,8 +367,8 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
+			if ($_REQUEST["aerolinea"])
+				$query.=" AND loc.airline = '".$_REQUEST["aerolinea"]."' ";
 
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."' ";
@@ -349,11 +387,15 @@
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE en.deleted=0 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
 			AND con.isSatelite='1'
 			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea') 
-			AND loc.registrodeventasid
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_881 != '' AND cf_861 != '') ";
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -373,8 +415,8 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
+			if ($_REQUEST["aerolinea"])
+				$query.=" AND loc.airline = '".$_REQUEST["aerolinea"]."' ";
 
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."'";
@@ -396,11 +438,15 @@
 
 			$query.="
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE en.deleted=0 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
 			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea')
 			AND bol.currency = 'USD' 
 			AND loc.registrodeventasid 
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_881 != '' AND cf_861 != '')";
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -420,13 +466,10 @@
 			if ($_REQUEST["localizador"])
 				$query.=" AND loc.localizador LIKE '%".$_REQUEST["localizador"]."%' ";
 
-			if ($_REQUEST["boleto"])
-				$query.=" AND bol.boleto1 = '".$_REQUEST["boleto"]."' ";
-
 			if ($_REQUEST["estatus"])
 				$query.=" AND bol.status = '".$_REQUEST["estatus"]."' ";
 				$query.=" ORDER BY bol.fecha_emision DESC ";
-		}	
+		}
 ?>
 
 <div class="bottomscroll-div">
@@ -572,13 +615,15 @@ else if ($_REQUEST['tventa'] == 4 ) {
 			<th width="5%" class="wide">
 			<input type="checkbox" id="listViewEntriesMainCheckBox"/></th>
 
-			<th nowrap  class="wide"><a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="ASC" data-columnname="registrodeventas">Registro de Ventas&nbsp;&nbsp;</a></th>
-
 			<!--Label para el filtro localizador-->
 			<th nowrap  class="wide"><a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="ASC" data-columnname="localizador">Localizador&nbsp;&nbsp;</a></th>
 
 			<!--Label para el filtro contacto-->
 			<th nowrap  class="wide"><a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="ASC" data-columnname="contactoid">Contacto&nbsp;&nbsp;</a></th>
+
+			<!--Label para el filtro Registro de Ventas-->
+			<th nowrap  class="wide"><a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="ASC" data-columnname="registrodeventas">Registro de Ventas&nbsp;&nbsp;</a>
+			</th>
 
 			<!--Label para el filtro procesado-->
 			<th nowrap  class="wide"><a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="ASC" data-columnname="procesado">Procesado&nbsp;&nbsp;</a></th>
@@ -632,8 +677,6 @@ if($filtro = mysql_query($query))
 		<input type="checkbox" value="<?=$row["localizadoresid"]?>" class="listViewEntriesCheckBox"/>
 	</td>
 
-		<!--Array para mostrar campo localizador-->
-	<td class="listViewEntryValue wide" data-field-type="string" data-field-name="registrodeventas" nowrap><?=$row["registrodeventasname"]?></td>
 
 	<!--Array para mostrar campo localizador-->
 	<td class="listViewEntryValue wide" data-field-type="string" data-field-name="localizador" nowrap><?=$row["localizador"]?></td>
@@ -665,6 +708,9 @@ if($filtro = mysql_query($query))
 <?php
 	}
 ?>
+
+<!--Array para mostrar campo registro de ventas-->
+<td class="listViewEntryValue wide" data-field-type="string" data-field-name="registrodeventas" nowrap><?=$registro_de_venta["registrodeventasname"]?></td>
 
 <!--Array para mostrar campo Procesado-->
 <td class="listViewEntryValue wide" data-field-type="boolean" data-field-name="procesado" nowrap><?=($row["procesado"] == "0") ?  "No" : "Si"?></td>

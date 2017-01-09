@@ -9,79 +9,83 @@
   *
  ********************************************************************************/
 -->*}
+
 {strip}
-<script>
-$(document).ready(function() {     
-	
-    $('#linkTicketSatelites').click(function() {
-    		$('#report').html("<img src='themes/images/loading.gif'>");
-        	$.ajax({
-			method: "GET",
-			url: "reportes/rptVentasSatelites.php",
-			type : "GET",
-			dataType:"html",
-			data: {},
-			success: function(response){     
-			     $('#report').html(response);
-			  	}
-			});									        	      
-    });    
+<!--Modified by jmangarret 26dic2015 --> 
+{if $USER_MODEL->getParentRoleSequence()|count_characters<=18}
+	<script>
+	$(document).ready(function() {     
+		
+	    $('#linkTicketSatelites').click(function() {
+	    		$('#report').html("<img src='themes/images/loading.gif'>");
+	        	$.ajax({
+				method: "GET",
+				url: "reportes/rptVentasSatelites.php",
+				type : "GET",
+				dataType:"html",
+				data: {},
+				success: function(response){     
+				     $('#report').html(response);
+				  	}
+				});									        	      
+	    });    
 
-    $('#linkOsTickets').click(function() {
-    		$('#report').html("<img src='themes/images/loading.gif'>");
-        	$.ajax({
-			method: "GET",
-			url: "reportes/rptTicketsPorStatus.php",
-			type : 'GET',
-			dataType:"html",
-			data: { },
-			success: function(response){     
-			     $('#report').html(response);
-			  	}
-			});									        	      
-    });    
+	    $('#linkOsTickets').click(function() {
+	    		$('#report').html("<img src='themes/images/loading.gif'>");
+	        	$.ajax({
+				method: "GET",
+				url: "reportes/rptTicketsPorStatus.php",
+				type : 'GET',
+				dataType:"html",
+				data: { },
+				success: function(response){     
+				     $('#report').html(response);
+				  	}
+				});									        	      
+	    });    
 
-    $('#linkProximosVuelos').click(function() {
-    		$('#report').html("<img src='themes/images/loading.gif'>");
-        	$.ajax({
-			method: "GET",
-			url: "reportes/rptProximosVuelos.php",
-			type : 'GET',
-			dataType:"html",
-			data: { },
-			success: function(response){     
-			     $('#report').html(response);
-			  	}
-			});									        	      
-    }); 
+	    $('#linkProximosVuelos').click(function() {
+	    		$('#report').html("<img src='themes/images/loading.gif'>");
+	        	$.ajax({
+				method: "GET",
+				url: "reportes/rptProximosVuelos.php",
+				type : 'GET',
+				dataType:"html",
+				data: { },
+				success: function(response){     
+				     $('#report').html(response);
+				  	}
+				});									        	      
+	    }); 
 
-    $('#linkErroresSoto').click(function() {
-    		$('#report').html("<img src='themes/images/loading.gif'>");
-        	$.ajax({
-			method: "GET",
-			url: "reportes/rptDatosSoto.php",
-			type : 'GET',
-			dataType:"html",
-			data: { },
-			success: function(response){     
-			     $('#report').html(response);
-			  	}
-			});									        	      
-    });   
+	    $('#linkErroresSoto').click(function() {
+	    		$('#report').html("<img src='themes/images/loading.gif'>");
+	        	$.ajax({
+				method: "GET",
+				url: "reportes/rptDatosSoto.php",
+				type : 'GET',
+				dataType:"html",
+				data: { },
+				success: function(response){     
+				     $('#report').html(response);
+				  	}
+				});									        	      
+	    });   
 
 
-});
-</script>
+	});
+	</script>
 
-<div align="center">	
-	<h3>
-		<!--<a href="#" id="linkTicketSatelites">Tickets Satelites</a> |-->
-		<a href="reportes/rptVentasSatelites.php">Tickets Satelites</a> |
-		<a href="#" id="linkOsTickets">Reporte osTickets</a> |
-		<a href="#" id="linkProximosVuelos">Próximos Vuelos</a> |
-		<a href="#" id="linkErroresSoto">Errores SOTO</a> 
-	</h3>
-</div>
+	<div align="center">	
+		<h3>		
+			<a href="reportes/rptVentasSatelites.php">Tickets Satelites</a> |
+			<a href="#" id="linkOsTickets">Reporte osTickets</a> |
+			<a href="#" id="linkProximosVuelos">Próximos Vuelos</a> |
+			<a href="#" id="linkErroresSoto">Errores SOTO</a> 
+		</h3>
+	</div>
+{/if}   
+
 <div id="report" class="gridster span" style="width: 98%;" align="center">
 	<ul>
 	{assign var=COLUMNS value=2}

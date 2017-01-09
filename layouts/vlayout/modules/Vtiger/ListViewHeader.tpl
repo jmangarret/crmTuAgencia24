@@ -52,7 +52,7 @@
 					{/foreach}
 
 					<!-- jmangarret BOTONES DE ACCION POR LOTE EN EL HEADER dic2015, ene2016 !-->				   
-					{if $MODULE eq 'Localizadores'}
+					{if $MODULE eq 'Localizadores' && $USER_MODEL->getParentRoleSequence()|count_characters<=18}
 					<span class="btn-group">
 							<a href="javascript:void(0);">
 							<button id="{$MODULE}_listView_basicAction_Process" class="btn addButton">
@@ -88,7 +88,7 @@
 
 					{/if}
 
-					{if $MODULE eq 'Boletos'}
+					{if $MODULE eq 'Boletos' && $USER_MODEL->getParentRoleSequence()|count_characters<=18}
 					<span class="btn-group">
 							<a href="javascript:void(0);">
 							<button id="{$MODULE}_listView_basicAction_Anular" class="btn addButton">
@@ -176,50 +176,11 @@
 	<div class="listViewContentDiv" id="listViewContents">
 
 	<!-- jmangarret BUSQUEDA POR REPORTE PARA SATELITES feb2016!-->				   
-	{if $MODULE eq 'Localizadores'}	
+	<!-- jmangarret BLOQUEO DE FILTROS PARA PERFIL SATELITES dic2016!-->				   
+	{if $MODULE eq 'Localizadores' && $USER_MODEL->getParentRoleSequence()|count_characters<=18}	
 		<form action="" name="frmBuscar" method="post" onSubmit="return false">
 			<table class="table showInlineTable">
 				<tr>
-					<td class="fieldLabel wide">
-						<span> Localizador: </span><br>
-						<input name="text-localizador" id="text-localizador" >
-					</td>
-					<td class="fieldLabel wide">
-						<span> Nº de Boleto: </span><br>
-						<input type="text" name="text-boleto" id="text-boleto">
-					</td>
-					<td class="fieldLabel wide">
-						<span> Estatus: </span><br>
-						<select class="option-estatus" id="option-estatus">
-							<option value="">--Seleccione--</option>
-						</select>
-					</td>
-					<td class="fieldLabel wide">
-						<span> Satelite: </span><br>
-						<select class="chzn-single" id="chzn-single">
-							<option value="">--Seleccione--</option>
-						</select>
-					</td>
-						<td class="fieldLabel wide">
-						<span> Asesores: </span><br>
-						<select class="asesoras-select" id="asesoras-select">
-							<option value="">--Seleccione--</option>
-						</select>
-					</td>
-				</tr><tr>
-					<td class="fieldLabel wide">
-						<span> Desde: </span><br>
-						<input type="date" class="dateField" value="" data-date-format="dd-mm-yyyy" name="fechaemision1" id="fechaemision1"></td><td class="fieldLabel wide">
-						<span> Hasta: </span><br>
-						<input type="date" class="dateField" value="" data-date-format="dd-mm-yyyy" name="fechaemision2" id="fechaemision2">
-					</td>
-						
-					<td class="fieldLabel wide">
-						<span> GDS: </span><br>
-						<select class="gds-select" id="gds-select">
-							<option value="">--Seleccione--</option>
-						</select>
-					</td>
 					<!--1/08/16 RURIEPE SELECT PARA TIPO DE VENTAS-->
 					<td class="fieldLabel wide" >
 						<span> Tipo de Venta: </span><br>
@@ -230,7 +191,45 @@
 							<option value="4">Ventas SOTO</option>
 						</select>
 					</td>
-
+					<td class="fieldLabel wide">
+						<span> Localizador: </span><br>
+						<input name="text-localizador" id="text-localizador" >
+					</td>
+					<td class="fieldLabel wide">
+						<span> Aerolínea: </span><br>
+						<select class="aerolinea-select" id="aerolinea-select">
+							<option value="">--Seleccione--</option>
+						</select>
+					</td>
+					<!--<td class="fieldLabel wide">
+						<span> Nº de Boleto: </span><br>
+						<input type="text" name="text-boleto" id="text-boleto">
+					</td>-->
+					<td class="fieldLabel wide">
+						<span> Asesores: </span><br>
+						<select class="asesoras-select" id="asesoras-select">
+							<option value="">--Seleccione--</option>
+						</select>
+					</td>
+					<td class="fieldLabel wide">
+						<span> Satelite: </span><br>
+						<select class="chzn-single" id="chzn-single">
+							<option value="">--Seleccione--</option>
+						</select>
+					</td>
+				</tr><tr>
+					<td class="fieldLabel wide">
+						<span> GDS: </span><br>
+						<select class="gds-select" id="gds-select">
+							<option value="">--Seleccione--</option>
+						</select>
+					</td>
+					<td class="fieldLabel wide">
+						<span> Estatus: </span><br>
+						<select class="option-estatus" id="option-estatus">
+							<option value="">--Seleccione--</option>
+						</select>
+					</td>
 					<!--11/08/16 RURIEPE SELECT PARA TIPO DE VENTAS-->
 					<td class="fieldLabel wide" >
 						<span> Procesados: </span><br>
@@ -240,6 +239,13 @@
 							<option value="0">No Procesado</option>
 						</select>
 					</td>
+					<td class="fieldLabel wide">
+						<span> Desde: </span><br>
+						<input type="date" class="dateField" value="" data-date-format="dd-mm-yyyy" name="fechaemision1" id="fechaemision1"></td><td class="fieldLabel wide">
+						<span> Hasta: </span><br>
+						<input type="date" class="dateField" value="" data-date-format="dd-mm-yyyy" name="fechaemision2" id="fechaemision2">
+					</td>
+						
 					<!--<td class="fieldLabel wide">
 						<span> Procesados: </span>
 						<input type="checkbox" name="checkbox-procesado" id="checkbox-procesado"> 
@@ -304,6 +310,17 @@
 						$("#asesoras-select").append(responses);
 					}
 				});
+				var ajax_data5={
+					"accion" : "select_aerolinea"
+				};
+				jQuery.ajax({
+					data: ajax_data5,
+					url: 'modules/Localizadores/ajaxReporteSatelites.php',
+					type: 'get',
+					success: function(responses){								
+						$("#aerolinea-select").append(responses);
+					}
+				});
 
 	 		$('#{$MODULE}_listView_basicAction_Buscar').click(function(){											        
 	            var ajax_data = {
@@ -315,11 +332,12 @@
 				"fecha_desde" : $("#fechaemision1").val(),
 				"fecha_hasta" : $("#fechaemision2").val(),
 				"localizador" : $("#text-localizador").val(),
-				"boleto"	  : $("#text-boleto").val(),
+				/*"boleto"	  : $("#text-boleto").val(),*/
 				"estatus"	  : $("#option-estatus").val(),
 				"asesoras"	  : $("#asesoras-select").val(),
 				"tventa"	  : $("#tventa-select").val(),
-				"procesado"	  : $("#procesado-select").val()
+				"procesado"	  : $("#procesado-select").val(),
+				"aerolinea"	  : $("#aerolinea-select").val()
 				};	
 				jQuery.ajax({
 					data: ajax_data,

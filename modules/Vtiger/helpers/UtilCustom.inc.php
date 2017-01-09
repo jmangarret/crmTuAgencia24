@@ -33,7 +33,7 @@ if ($custom==1){ //custom de function getPickListValues
 	if($fieldName=="nrodeticket")
 	{
 		$query = "SELECT ost_ticket.number as nrodeticket FROM osticket1911.ost_ticket 
-					WHERE status_id=3 AND topic_id=19 AND ticket_id>16000 ORDER BY ticket_id DESC"; 
+					WHERE status_id>1 AND topic_id=19 AND ticket_id>16000 ORDER BY ticket_id DESC"; 
 	} 
 	//jmangarret Fin	
 }

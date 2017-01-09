@@ -35,11 +35,6 @@
 								<a id="menubar_item_{$moduleName}" href="{$moduleModel->getDefaultUrl()}" {if $MODULE eq $moduleName} class="selected" {/if}>{$translatedModuleLabel}  </a>
 							</li>
 						{/foreach}
-						<!--Modified by jmangarret 02jun2015 -->
-						{if $USER_MODEL->get('roleid')<>'H9'}
-						<li class="{$topmenuClassName}"><a href="reportes/">Reportes 2</a></li>
-						{/if}   
-
 						<li class="dropdown" id="moreMenu">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#moreMenu">
 								{vtranslate('LBL_ALL',$MODULE)}

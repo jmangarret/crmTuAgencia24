@@ -1,0 +1,76 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>its4you_multicompany4you</name>
+			<sql><![CDATA[CREATE TABLE `its4you_multicompany4you` (
+  `companyid` int(19) NOT NULL,
+  `companyname` varchar(255) NOT NULL,
+  `street` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `fax` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `website` varchar(255) DEFAULT NULL,
+  `logoname` varchar(255) DEFAULT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `bankname` varchar(255) DEFAULT NULL,
+  `bankaccountno` varchar(255) DEFAULT NULL,
+  `iban` varchar(50) DEFAULT NULL,
+  `swift` varchar(30) DEFAULT NULL,
+  `registrationno` varchar(255) DEFAULT NULL,
+  `vatno` varchar(255) DEFAULT NULL,
+  `taxid` varchar(255) DEFAULT NULL,
+  `stampname` varchar(255) DEFAULT NULL,
+  `additionalinformations` text,
+  `role` varchar(50) DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`companyid`),
+  KEY `deleted` (`deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>its4you_multicompany4you_seq</name>
+			<sql><![CDATA[CREATE TABLE `its4you_multicompany4you_seq` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>its4you_multicompany4you_cn</name>
+			<sql><![CDATA[CREATE TABLE `its4you_multicompany4you_cn` (
+  `companyid` int(11) DEFAULT NULL,
+  `tab_id` int(11) DEFAULT NULL,
+  `prefix` varchar(50) NOT NULL DEFAULT '',
+  `start_id` varchar(50) NOT NULL,
+  `cur_id` varchar(50) NOT NULL,
+  `active` varchar(2) NOT NULL,
+  KEY `role_id` (`companyid`,`tab_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>its4you_multicompany4you_cn_modules</name>
+			<sql><![CDATA[CREATE TABLE `its4you_multicompany4you_cn_modules` (
+  `tab_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>its4you_multicompany4you_license</name>
+			<sql><![CDATA[CREATE TABLE `its4you_multicompany4you_license` (
+  `version_type` varchar(255) NOT NULL,
+  `license_key` varchar(255) NOT NULL,
+  UNIQUE KEY `version_type` (`version_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>its4you_multicompany4you_version</name>
+			<sql><![CDATA[CREATE TABLE `its4you_multicompany4you_version` (
+  `version` varchar(10) NOT NULL,
+  `license` varchar(255) NOT NULL,
+  UNIQUE KEY `version` (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+	</tables>
+</schema>
