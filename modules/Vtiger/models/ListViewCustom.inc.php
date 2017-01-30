@@ -4,16 +4,17 @@
 $currentUser = vglobal('current_user');
 //$role = Users_Record_Model::getRole();
 
-echo "<pre>";
+//echo "<pre>";
 //print_r($currentUser);
 
 $methods = array();
 foreach (get_class_methods($currentUser) as $method) {    
         $methods[] = $method;    
 }
-print_r($methods);
+//print_r($methods);
+
 $role=$currentUser->column_fields["roleid"];
-echo "ROL: ".$role;
+//echo "ROL: ".$role;
 
 //Modified by jmangarret 13ene2016 popUP seleccionar localizadores desde Registro de Ventas
 if ($moduleName=="Localizadores" && $sourceModule=="RegistroDeVentas"){
