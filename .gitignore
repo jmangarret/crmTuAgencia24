@@ -5,8 +5,9 @@ log4php.properties
 htaccess.txt
 test/*
 storage/*
-/storage
-storage
+/storage/*
+/storage/
+user_privileges/*
 cache/*
 backup/*
 ayuda/*
