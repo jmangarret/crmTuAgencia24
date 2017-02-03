@@ -4,7 +4,13 @@ config.performance.php
 log4php.properties
 htaccess.txt
 test/*
+<<<<<<< HEAD
 storage
+=======
+storage/*
+/storage/*
+/storage/
+>>>>>>> 4d82a08162c2ebaf1bf87db5a108c794b319af56
 cache/*
 backup/*
 ayuda/*

@@ -33,6 +33,7 @@ include_once('include/PHPMailer/enviar_email.php');
                     //RURIEPE 19/09/2016 - SE EVALUA SI EL REGISTRO A CREAR ES NUEVO, EN CASO DE SER VERDADERO SE REALIZA EL ENVIO DE PARAMETROS PARA CREAR EL REGISTRO DE ACTIVIDAD EN LA BASE DE DATOS Y ACTIVAR LA NOTIFICACION(POP-UP)
                     if($esNuevo && $tarifa == 0)
                     {
+
                         
                         //RURIEPE 19/09/2016 - SE INCLUYE ARCHIVO PARA INVOCAR LA FUNCION
                         include('modules/Vtiger/GenerarNotificaciones.php');
@@ -42,6 +43,30 @@ include_once('include/PHPMailer/enviar_email.php');
                     } 
                     elseif (!$esNuevo && $tarifa > 0)  
                     {
+                        // RURIEPE 3/02/2017 - ACTUALIZAR TABLAS CRMENTITY Y SALESMANACTIVITYREL
+
+                            $SqlIdActivity=mysql_query("SELECT activityid FROM vtiger_seactivityrel 
+                            WHERE crmid = $RelId ;");
+
+                            if (mysql_num_rows($SqlIdActivity) > 0)
+                            {
+                                while ($fila = mysql_fetch_array($SqlIdActivity)) 
+                                {
+                                
+                                    $IdActivity= $fila[0];
+                                }
+                            }
+
+
+                            $updateUserSalesManActivityrel=mysql_query("UPDATE vtiger_salesmanactivityrel 
+                            SET smid = $asignado 
+                            WHERE activityid =$IdActivity");
+
+                            $updateUserCrmentity=mysql_query("UPDATE vtiger_crmentity 
+                            SET smownerid = $asignado
+                            WHERE crmid = $IdActivity");
+
+                        // RURIEPE 3/02/2017
 
                         //RURIEPE 16/09/2016 - SE CAPTURA EL NOMBRE Y APELLIDO DEL ASESOR.
                         $ownerModel = Users_Record_Model::getInstanceById($asignado, 'Users');
