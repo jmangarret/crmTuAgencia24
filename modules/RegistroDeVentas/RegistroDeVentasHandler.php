@@ -101,8 +101,10 @@ class RegistroDeVentasHandler extends VTEventHandler {
 			//if ($nprods>0 || $nbols>0){
 			//	RegistroDePagosHandler::updatePagos(0,$idVenta);				
 			//}			
-			
-			//$result = $adb->pquery("CALL setCrmEntityRel('RegistroDeVentas','Localizadores',".$idVenta.",0)", array());	
+			$sqlSP="CALL setCrmEntityRel('RegistroDeVentas','Localizadores',".$idVenta.",0)";
+			$result = $adb->pquery($sqlSP, array());	
+
+			//$log->debug($sqlSP);
 			
 			$result = $adb->pquery("CALL totVentasPagadas(?)", array($idVenta));	
 

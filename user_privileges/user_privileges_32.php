@@ -18,11 +18,11 @@ $profileActionPermission=array(2=>array(0=>0,1=>0,2=>0,3=>0,4=>0,5=>0,6=>0,10=>0
 
 $current_user_groups=array(2,3,);
 
-$subordinate_roles=array('H11','H5','H12','H13','H14','H15','H16','H17','H18','H19','H20','H9','H6','H7','H8',);
+$subordinate_roles=array('H11','H5','H12','H13','H14','H15','H16','H17','H18','H19','H20','H21','H9','H6','H7','H8',);
 
 $parent_roles=array('H1','H2','H3',);
 
-$subordinate_roles_users=array('H11'=>array(),'H5'=>array(7,16,17,20,28,31,40,41,46,49,50,51,52,53,55,57,58,),'H12'=>array(61,),'H13'=>array(62,),'H14'=>array(63,),'H15'=>array(59,),'H16'=>array(65,),'H17'=>array(66,),'H18'=>array(67,),'H19'=>array(68,),'H20'=>array(69,),'H9'=>array(64,),'H6'=>array(18,25,30,37,42,43,47,),'H7'=>array(26,36,),'H8'=>array(33,),);
+$subordinate_roles_users=array('H11'=>array(),'H5'=>array(7,16,17,20,28,31,40,41,46,49,50,51,52,53,55,57,58,),'H12'=>array(61,),'H13'=>array(62,),'H14'=>array(63,),'H15'=>array(59,),'H16'=>array(65,),'H17'=>array(66,),'H18'=>array(67,),'H19'=>array(68,),'H20'=>array(69,),'H21'=>array(70,),'H9'=>array(64,),'H6'=>array(18,25,30,37,42,43,47,),'H7'=>array(26,36,),'H8'=>array(33,),);
 
 $user_info=array('user_name'=>'yanuel','is_admin'=>'off','user_password'=>'$1$ya000000$ZKUNhJeD41irsCiZ4pFP20','confirm_password'=>'$1$ya000000$ZKUNhJeD41irsCiZ4pFP20','first_name'=>'Yanuel','last_name'=>'Leal','roleid'=>'H4','email1'=>'webmaster@tuagencia24.com','status'=>'Inactive','activity_view'=>'Today','lead_view'=>'Today','hour_format'=>'12','end_hour'=>'','start_hour'=>'00:00','title'=>'','phone_work'=>'','department'=>'','phone_mobile'=>'','reports_to_id'=>'','phone_other'=>'','email2'=>'','phone_fax'=>'','secondaryemail'=>'','phone_home'=>'','date_format'=>'dd-mm-yyyy','signature'=>'','description'=>'','address_street'=>'','address_city'=>'','address_state'=>'','address_postalcode'=>'','address_country'=>'','accesskey'=>'IHZvpKyA117NBxtq','time_zone'=>'America/Caracas','currency_id'=>'1','currency_grouping_pattern'=>'123,456,789','currency_decimal_separator'=>'.','currency_grouping_separator'=>',','currency_symbol_placement'=>'$1.0','imagename'=>'','internal_mailer'=>'0','theme'=>'softed','language'=>'es_es','reminder_interval'=>'','asterisk_extension'=>'','use_asterisk'=>'0','no_of_currency_decimals'=>'2','truncate_trailing_zeros'=>'0','dayoftheweek'=>'Monday','callduration'=>'5','othereventduration'=>'5','calendarsharedtype'=>'public','default_record_view'=>'Summary','leftpanelhide'=>'0','rowheight'=>'medium','cedula'=>'00003','firma'=>'','ccurrency_name'=>'','currency_code'=>'USD','currency_symbol'=>'&#36;','conv_rate'=>'1.00000','record_id'=>'','record_module'=>'','currency_name'=>'USA, Dollars','id'=>'32');
 ?>
