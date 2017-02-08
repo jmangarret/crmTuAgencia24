@@ -63,14 +63,12 @@ if ($depth==5){ //role satelite xxx
 
 echo "<script>";
 	echo "console.log(\"";
-		echo "	USER: ".$userid;
-		echo "	CUENTA: ".$accountid;
-		echo "	ROL: ".$role;
-		echo "	DEPTH: ".$depth;
-	echo "\");";
-	echo "console.log(\"";
-		echo $listQuery;
-	echo "\");";
+		echo "	USER: "		.$userid;
+		echo "	CUENTA: "	.$accountid;
+		echo "	ROL: "		.$role;
+		echo "	DEPTH: "	.$depth;
+		echo "  QUERY: "	.$listQuery;
+	echo "\");";	
 echo "</script>";
 
 
