@@ -255,6 +255,7 @@
 					<button  id="{$MODULE}_listView_basicAction_Buscar" class="btn">								
 						<strong>Buscar</strong> 
 						</button>
+						<div id="loader"></div>
 						</a>
 						<span id="searchIcon" class="add-on search-icon"><i class="icon-white icon-search "></i></span> 
 					</td>
@@ -339,7 +340,8 @@
 				"procesado"	  : $("#procesado-select").val(),
 				"aerolinea"	  : $("#aerolinea-select").val()
 				};	
-				jQuery.ajax({
+				$('div.listViewEntriesDiv.contents-bottomscroll').html("<center><img src='themes/images/loading.gif'></center>");
+				$.ajax({
 					data: ajax_data,
 					url: 'modules/Localizadores/ajaxReporteSatelites.php',
 					type: 'get',

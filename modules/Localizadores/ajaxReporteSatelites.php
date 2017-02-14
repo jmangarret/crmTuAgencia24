@@ -12,7 +12,6 @@
 	// 16/12/2016 RURIEPE - SE AGREGA SUBCONSULTA PARA OBTENER LOS REGISTROS (SOTOS) DONDE EL REGISTRO DE VENTAS TENGA UN PAGO AGREGADO
 
 	include("../../config.inc.php");
-
 	$user=$dbconfig['db_username'];
 	$pass=$dbconfig['db_password'];
 	$bd=$dbconfig['db_name'];
