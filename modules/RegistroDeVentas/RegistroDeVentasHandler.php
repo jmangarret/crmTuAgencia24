@@ -104,7 +104,7 @@ class RegistroDeVentasHandler extends VTEventHandler {
 			$sqlSP="CALL setCrmEntityRel('RegistroDeVentas','Localizadores',".$idVenta.",0)";
 			$result = $adb->pquery($sqlSP, array());	
 
-			$log->debug($sqlSP);
+			//$log->debug($sqlSP);
 			
 			$result = $adb->pquery("CALL totVentasPagadas(?)", array($idVenta));	
 
