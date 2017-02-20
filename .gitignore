@@ -7,6 +7,7 @@ test/*
 storage/*
 /storage/*
 /storage/
+user_privileges/*
 cache/*
 backup/*
 ayuda/*

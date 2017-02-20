@@ -11,6 +11,9 @@ class LocalizadoresHandler extends VTEventHandler {
     			$sql="UPDATE vtiger_boletos SET fee=0 WHERE localizadorid=$id";
     			$result = $adb->pquery($sql, array());
     			//die($sql);
+    		}else{
+    			$sql="UPDATE vtiger_boletos SET observacion=CONCAT(observacion,' Loc. Actualizado') WHERE localizadorid=$id";
+    			$result = $adb->pquery($sql, array());
     		}
     		return true;
     	}
