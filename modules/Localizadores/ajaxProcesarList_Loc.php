@@ -1,4 +1,4 @@
-<?
+<?php
 include("../../config.inc.php");
 $user=$dbconfig['db_username'];
 $pass=$dbconfig['db_password'];
