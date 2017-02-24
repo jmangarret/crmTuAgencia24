@@ -20,7 +20,7 @@ $accountid = $result['accountid'];
 $role=	fetchUserRole($userid);
 $roleinfo=	getRoleInformation($role);
 $depth=		$roleinfo[$role][2]; //Nivel o Profundidad del Role 5=Satelites, 4=Sales Person
-if ($depth==5){ //role satelite xxx
+if ($depth==5){ //role satelite
 	//Buscamos todas las firmas de la cuenta asociada al usuario
 	$sqlFirmas ="SELECT firma FROM vtiger_terminales as t INNER JOIN vtiger_contactdetails as c ON t.usercontactoid=c.contactid ";
 	$sqlFirmas.=" INNER JOIN vtiger_account as a ON c.accountid=a.accountid ";
@@ -60,16 +60,4 @@ if ($depth==5){ //role satelite xxx
 		}				
 	}	
 }
-
-echo "<script>";
-	echo "console.log(\"";
-		echo "	USER: "		.$userid;
-		echo "	CUENTA: "	.$accountid;
-		echo "	ROL: "		.$role;
-		echo "	DEPTH: "	.$depth;
-		echo "  QUERY: "	.$listQuery;
-	echo "\");";	
-echo "</script>";
-
-
 ?>
