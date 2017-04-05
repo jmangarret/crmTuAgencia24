@@ -203,7 +203,7 @@
 			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
 			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
 			AND setype='Localizadores')
-			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea') 
+			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
 			AND loc.registrodeventasid 
 			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
 			AND loc.registrodeventasid 
@@ -296,7 +296,7 @@
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
 			WHERE isSatelite IS NULL OR isSatelite='0' OR isSatelite=''))
-			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea') 
+			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
 			AND loc.registrodeventasid 
 			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
 			AND loc.registrodeventasid 
@@ -390,7 +390,7 @@
 			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
 			AND setype='Localizadores') 
 			AND con.isSatelite='1'
-			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea') 
+			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
 			AND loc.registrodeventasid 
 			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
 			AND loc.registrodeventasid 
@@ -440,7 +440,7 @@
 			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
 			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
 			AND setype='Localizadores') 
-			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea')
+			AND (loc.gds='Servi' OR loc.gds='Web Aerolinea' OR loc.gds='Percorsi' OR loc.gds='Kiu Internacional')
 			AND bol.currency = 'USD' 
 			AND loc.registrodeventasid 
 			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
@@ -524,7 +524,7 @@
 						$biemitidos = $biemitidos - 1;
 					}
 		        }
-		        if (($row['gds'] == "Servi" OR $row['gds'] == "Web Aerolinea") AND $row['status'] != "Anulado" AND  $row['currency'] == 'USD')
+		        if (($row['gds'] == "Servi" OR $row['gds'] == "Web Aerolinea" OR $row['gds'] == "Percorsi" OR $row['gds'] == "Kiu Internacional") AND $row['status'] != "Anulado" AND  $row['currency'] == 'USD')
 		        {
 		        	$bsemitidos = $bsemitidos+ count($row["boletosid"]);
 		        }

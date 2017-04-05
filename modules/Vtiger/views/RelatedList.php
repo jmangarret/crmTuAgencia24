@@ -87,10 +87,12 @@ class Vtiger_RelatedList_View extends Vtiger_Index_View {
 			$cant=$key->get('cantidad');
 			$monto=$key->get('amount');
 			$moneda=$key->get('currency');
+			$extra=$key->get('extra_fee');
+			$fee=$key->get('fee');
 
 			if (!$cant) 		$cant=1;			
-			if ($moneda=="VEF")	$totBs=$totBs+$monto*$cant;
-			if ($moneda=="USD")	$totDs=$totDs+$monto*$cant;
+			if ($moneda=="VEF")	$totBs=$totBs+$monto+$fee+$extra*$cant;
+			if ($moneda=="USD")	$totDs=$totDs+$monto+$fee+$extra*$cant;
 		}
 		
 		$viewer->assign('TOTALBS', number_format($totBs,2,'.',','));
