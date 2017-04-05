@@ -12,7 +12,7 @@
 	if ($_REQUEST["accion"]=="select_satelite")
 	{
 		$query = "SELECT accountid, accountname FROM `vtiger_account` 
-		WHERE `account_type` LIKE 'Satelite' ORDER BY accountname ASC ";
+		WHERE `account_type` LIKE 'Satelite' OR `account_type` LIKE 'Freelance%' ORDER BY accountname ASC ";
 
 		if($filtro = mysql_query($query))
 		{
