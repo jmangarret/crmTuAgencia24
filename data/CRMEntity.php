@@ -123,11 +123,7 @@ class CRMEntity {
 		global $upload_badext;
 
 		$log->debug("Entering into uploadAndSaveFile($id,$module,".$vard.") method.");
-
-		echo "<pre>";
-		var_dump($file_details);
-		//exit;
-
+		
 		$date_var = date("Y-m-d H:i:s");
 
 		//to get the owner id
