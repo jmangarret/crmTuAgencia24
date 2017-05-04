@@ -13,9 +13,11 @@ $cont=0;
 if ($accion=="procesarLocalizadores"){		
 	if (isset($id))
 	foreach ($id as $idLoc) {		
-		$resultado = mysql_query("SELECT registrodeventasid FROM vtiger_localizadores WHERE localizadoresid = ".$idLoc);
+		$resultado = mysql_query("SELECT registrodeventasid, gds FROM vtiger_localizadores WHERE localizadoresid = ".$idLoc);
 		$registro = mysql_fetch_assoc($resultado);
-		if (!isset($registro["registrodeventasid"])){			
+		if (!isset($registro["registrodeventasid"]) OR is_null($registro["registrodeventasid"]) OR empty($registro["registrodeventasid"])){			
+			///FIX Error al procesar venta - Se coloca no procesado por no tener venta asociada
+			$qryUpdLoc=mysql_query("UPDATE vtiger_localizadores SET procesado=0 WHERE localizadoresid=".$idLoc);	
 			/// CREACION DEL REGISTO DE VENTAS ///
 			$sqlIdCrm=mysql_query("CALL getCrmId();");
 			$sqlIdCrm=mysql_query("SELECT @idcrm;");
@@ -54,41 +56,70 @@ if ($accion=="procesarLocalizadores"){
 				continue;
 			}
 
-
 			//Creamos registro de venta
 			$sqlVenta ="insert into vtiger_registrodeventas(registrodeventasid,registrodeventasname,registrodeventastype,fecha,contacto) ";
-			$sqlVenta.="values($crmId,'$moduleRecord','Boleto',NULL,$contactid)";
+			if ($registro["gds"]=="Kiu" || $registro["gds"]=="Amadeus" || $registro["gds"]=="Web Aerolinea")
+				$sqlVenta.="values($crmId,'$moduleRecord','Boleto',NULL,$contactid)";
+			else
+				$sqlVenta.="values($crmId,'$moduleRecord','Boleto SOTO',NULL,$contactid)";	
+			
 			$qryVenta=mysql_query($sqlVenta);
 			$insert_venta=mysql_affected_rows();
 
-			$sqlReg2="insert into vtiger_registrodeventascf(registrodeventasid,cf_1621,cf_1627) values($crmId,'Pendiente de Pago','Venta generada desde Procesar Localizadores')";
-			$qryReg2=mysql_query($sqlReg2);
+			if ($insert_venta){
+				$sqlReg2="insert into vtiger_registrodeventascf(registrodeventasid,cf_1621,cf_1627) values($crmId,'Pendiente de Pago','Venta generada desde Procesar Localizadores')";
+				$qryReg2=mysql_query($sqlReg2);
 
-			$idRecordSig=($idRecord+1);
-			$sqlEnt="UPDATE vtiger_modentity_num SET cur_id=CONCAT('0',$idRecordSig) WHERE cur_id='$idRecord' AND active=1 AND semodule='RegistroDeVentas'";
-			$qryEnt=mysql_query($sqlEnt);
-			/// FIN CREACION DEL REGISTO DE VENTAS///
+				$idRecordSig=($idRecord+1);
+				$sqlEnt="UPDATE vtiger_modentity_num SET cur_id=CONCAT('0',$idRecordSig) WHERE cur_id='$idRecord' AND active=1 AND semodule='RegistroDeVentas'";
+				$qryEnt=mysql_query($sqlEnt);
+				/// FIN CREACION DEL REGISTO DE VENTAS///
 
-			//$sql="UPDATE vtiger_boletos SET status='Procesado' WHERE boletosid=".$i;		
-			$qryUpdLoc=mysql_query("UPDATE vtiger_localizadores SET procesado=1 WHERE localizadoresid=".$idLoc);			
-			$update_loc=mysql_affected_rows();
-			if ($insert_venta>0 && $update_loc>0){
-				//Actualizamos venta asociada en Localizador
-				$qryVtaLoc=mysql_query("UPDATE vtiger_localizadores SET registrodeventasid=$crmId WHERE localizadoresid=".$idLoc);
-				//Insertamos relacion entre modulos vtiger
-				$qryInsertRel=mysql_query("INSERT INTO vtiger_crmentityrel values($crmId,'RegistroDeVentas',$idLoc,'Localizadores');");
-				//Buscamos boletos del localizador para actualizar status.
-				/*
-				$qryBoletos=mysql_query("SELECT boletosid FROM vtiger_boletos WHERE localizadorid=".$idLoc);			
-				while ($rowBoletos=mysql_fetch_row($qryBoletos)){
-					$idBoleto=$rowBoletos[0];	
-					$sql=mysql_query("UPDATE vtiger_boletos SET status='Procesado' WHERE boletosid=".$idBoleto);		
+				//$sql="UPDATE vtiger_boletos SET status='Procesado' WHERE boletosid=".$i;		
+				$qryUpdLoc=mysql_query("UPDATE vtiger_localizadores SET procesado=1 WHERE localizadoresid=".$idLoc);			
+				$update_loc=mysql_affected_rows();
+				if ($update_loc>0){
+					//Actualizamos venta asociada en Localizador
+					$qryVtaLoc=mysql_query("UPDATE vtiger_localizadores SET registrodeventasid=$crmId WHERE localizadoresid=".$idLoc);
+					//Insertamos relacion entre modulos vtiger
+					$qryInsertRel=mysql_query("INSERT INTO vtiger_crmentityrel values($crmId,'RegistroDeVentas',$idLoc,'Localizadores');");
+					//Agregamos trackers de auditoria para ver modificaciones
+					$ult="SELECT MAX(id) FROM vtiger_modtracker_basic";
+					$qul=mysql_query($ult);
+					$idm=mysql_result($qul, 0);
+					$idm=$idm+1;
+					$aud=" INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) ";
+					$aud.="VALUES($idm,'$idLoc','Localizadores','$userid','$fhoy','0')";
+					mysql_query($aud);
+					$aud="update vtiger_modtracker_basic_seq set id=LAST_INSERT_ID(id+1)";
+					mysql_query($aud);
+					$aud="INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES($idm,'procesado',0,1)";
+					mysql_query($aud);
+					$aud="INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES($idm,'registrodeventasid',0,$crmId)";
+					mysql_query($aud);
+
+					$cont++;						
 				}
-				*/
-				$cont++;						
+
+				//Agregamos trackers de auditoria para ver modificaciones
+				$ult="SELECT MAX(id) FROM vtiger_modtracker_basic";
+				$qul=mysql_query($ult);
+				$idm=mysql_result($qul, 0);
+				$idm=$idm+1;
+				$aud=" INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) ";
+				$aud.="VALUES($idm,'$crmId','RegistroDeVentas','$userid','$fhoy','2')";
+				mysql_query($aud);
+				$aud="update vtiger_modtracker_basic_seq set id=LAST_INSERT_ID(id+1)";
+				mysql_query($aud);
+				//$aud="INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES($idm,$fieldname,$prevalue,$postvalue)";
+				//mysql_query($aud);
+
 			}
-		}
+		}else{
+			$response="Ya procesado";	
+		}		
 	}
+}
 	if (($cont>0) && ($sin_contactos==0)){//se procesaron todos
 		$response="Completado";
 		//$link= "<a href='index.php?module=Localizadores&view=List'>Actualizar Lista</a>";		
@@ -104,5 +135,4 @@ if ($accion=="procesarLocalizadores"){
 		//echo "No se procesó ningún localizador por falta de contactos.";
 	}	
 	echo $response;
-}
 ?>
