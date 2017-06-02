@@ -66,7 +66,7 @@ if ($accion=="procesarLocalizadores"){
 			$qryVenta=mysql_query($sqlVenta);
 			$insert_venta=mysql_affected_rows();
 
-			if ($insert_venta){
+			if ($insert_venta>0){
 				$sqlReg2="insert into vtiger_registrodeventascf(registrodeventasid,cf_1621,cf_1627) values($crmId,'Pendiente de Pago','Venta generada desde Procesar Localizadores')";
 				$qryReg2=mysql_query($sqlReg2);
 

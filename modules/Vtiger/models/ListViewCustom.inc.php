@@ -4,7 +4,7 @@
 
 /////Modified by jmangarret 13ene2016 popUP seleccionar localizadores desde Registro de Ventas
 if ($moduleName=="Localizadores" && $sourceModule=="RegistroDeVentas"){
-	$listQuery .= ' AND vtiger_localizadores.procesado=0';	
+	$listQuery .= ' AND (vtiger_localizadores.procesado=0 OR vtiger_localizadores.registrodeventasid<0 OR vtiger_localizadores.registrodeventasid IS NULL)';	
 }
 
 /////Modified by jmangarret 03feb2016 popUP seleccionar cuentas desde Comsiones Satelites
