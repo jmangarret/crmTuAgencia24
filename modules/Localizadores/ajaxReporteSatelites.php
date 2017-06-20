@@ -145,8 +145,8 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores')
 			LEFT JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid ";
 
 			if ($_REQUEST["satelite"])
@@ -156,10 +156,8 @@
 
 			$query.="
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
-			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores')
-			AND bol.currency = 'VEF' 
+			WHERE  
+			bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR  loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea')";
 
 			if ($_REQUEST["asesoras"])
@@ -191,23 +189,20 @@
 			UNION ALL 
 			(SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
+				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores')
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
-			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores')
-			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
-			AND loc.registrodeventasid 
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-			AND loc.registrodeventasid 
-			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
+			WHERE 
+			(loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
+			";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -241,13 +236,11 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
-			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores') 
-			AND (contactoid IS NULL 
+			WHERE  
+			(contactoid IS NULL 
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
 			WHERE isSatelite IS NULL OR isSatelite='0' OR isSatelite='')) 
@@ -280,27 +273,24 @@
 			UNION ALL 
 			(SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
+				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid  AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores')  
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
-			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores')  
-			AND (contactoid IS NULL 
+			WHERE 
+			(contactoid IS NULL 
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
 			WHERE isSatelite IS NULL OR isSatelite='0' OR isSatelite=''))
 			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
-			AND loc.registrodeventasid 
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-			AND loc.registrodeventasid 
-			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
+			";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -333,18 +323,16 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid  AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 			
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
-			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores') 
-			AND con.isSatelite='1' 
+			WHERE 
+			con.isSatelite='1' 
 			AND bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR  loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea')";
 
@@ -377,24 +365,20 @@
 			UNION ALL 
 			(SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
+				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
-			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores') 
-			AND con.isSatelite='1'
+			WHERE con.isSatelite='1'
 			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
-			AND loc.registrodeventasid 
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-			AND loc.registrodeventasid 
-			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
+			";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -427,9 +411,11 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
+				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
@@ -437,15 +423,10 @@
 
 			$query.="
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
-			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
-			AND setype='Localizadores') 
-			AND (loc.gds='Servi' OR loc.gds='Web Aerolinea' OR loc.gds='Percorsi' OR loc.gds='Kiu Internacional')
+			WHERE 
+			(loc.gds='Servi' OR loc.gds='Web Aerolinea' OR loc.gds='Percorsi' OR loc.gds='Kiu Internacional')
 			AND bol.currency = 'USD' 
-			AND loc.registrodeventasid 
-			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-			AND loc.registrodeventasid 
-			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
+			";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -486,7 +467,7 @@
 	$bnemitidos = 0;
 	$biemitidos = 0;
 	$bsemitidos = 0;
-
+	echo $_REQUEST["tventa"].$query;
 	//RURIEPE 2/08/2016 - SE REALIZA RECORRIDO E LA CONSULTA EJECUTA PARA 
 	if($filtro = mysql_query($query))
 	{
@@ -728,7 +709,7 @@ if($filtro = mysql_query($query))
 <td class="listViewEntryValue wide" data-field-type="string" data-field-name="fecha_emision" nowrap><?=$format_fecha_emision?></td>
 
 <!--Array para mostrar campo Tarifa-->
-<td class="listViewEntryValue wide" data-field-type="currency" data-field-name="amount" nowrap><?=number_format($row["amount"], 2, '.', ',');?></td>
+<td class="listViewEntryValue wide" data-field-type="currency" data-field-name="amount" nowrap align=right><?=number_format($row["amount"], 2, '.', ',')." ".$row['currency'];?></td>
 
 <td nowrap class="wide">
 	<div class="actions pull-right">
