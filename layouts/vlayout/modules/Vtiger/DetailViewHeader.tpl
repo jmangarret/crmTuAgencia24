@@ -69,6 +69,9 @@
 											if (response=="Ya procesado"){
 												bootbox.alert("El localizador ya fue procesado o posee un registro de ventas asociado."); 											
 											}	
+											$("#{$MODULE}_detail_basicAction_Process").css("background-color","#0065a6");											
+											$("#{$MODULE}_detail_basicAction_Process").css("color","white");											
+											$("#{$MODULE}_detail_basicAction_Process").css("font-weight","bold");																
 											$("#{$MODULE}_detail_basicAction_Process").text(response);											
 										}
 									});
