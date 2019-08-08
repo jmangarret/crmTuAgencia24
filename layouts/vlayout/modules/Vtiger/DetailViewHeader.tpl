@@ -37,7 +37,9 @@
 							</span>
 							<script type="text/javascript">										 
 							 $(document).ready(function() {	
-						 		$('#{$MODULE}_detail_basicAction_Process').click(function(){						 			
+						 		$('#{$MODULE}_detail_basicAction_Process').click(function(){	
+						 		$("#{$MODULE}_detail_basicAction_Process").attr('disabled','disabled');
+						 		$("#{$MODULE}_detail_basicAction_Process").text("Procesando..."); 							 		
 							        var ids1 = new Array();						 
 							        var ids=$("#recordId").val();
 							        ids1.push(ids);						            
@@ -64,6 +66,13 @@
 											if (response=="Fallido"){
 												bootbox.alert("No se procesó ningún localizador por falta de contactos."); 											
 											}	
+											if (response=="Ya procesado"){
+												bootbox.alert("El localizador ya fue procesado o posee un registro de ventas asociado."); 											
+											}	
+											$("#{$MODULE}_detail_basicAction_Process").css("background-color","#0065a6");											
+											$("#{$MODULE}_detail_basicAction_Process").css("color","white");											
+											$("#{$MODULE}_detail_basicAction_Process").css("font-weight","bold");																
+											$("#{$MODULE}_detail_basicAction_Process").text(response);											
 										}
 									});
 							    });	

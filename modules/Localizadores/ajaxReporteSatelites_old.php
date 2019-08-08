@@ -145,8 +145,8 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores')
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid 
 			LEFT JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid ";
 
 			if ($_REQUEST["satelite"])
@@ -156,8 +156,10 @@
 
 			$query.="
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE  
-			bol.currency IN ('VEF','VES') 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores')
+			AND bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR  loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea')";
 
 			if ($_REQUEST["asesoras"])
@@ -189,20 +191,23 @@
 			UNION ALL 
 			(SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores')
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE 
-			(loc.gds='Servi' OR loc.gds='VendeTravel' OR loc.gds='Universal Travel' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
-			";
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores')
+			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -236,15 +241,17 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE  
-			(contactoid IS NULL 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
+			AND (contactoid IS NULL 
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
 			WHERE isSatelite IS NULL OR isSatelite='0' OR isSatelite='')) 
-			AND bol.currency IN ('VEF' ,'VES')
+			AND bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea') ";
 
 			if ($_REQUEST["asesoras"])
@@ -273,24 +280,27 @@
 			UNION ALL 
 			(SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid  AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores')  
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE 
-			(contactoid IS NULL 
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores')  
+			AND (contactoid IS NULL 
 			OR contactoid='' 
 			OR contactoid IN (SELECT contactid FROM vtiger_contactdetails 
 			WHERE isSatelite IS NULL OR isSatelite='0' OR isSatelite=''))
-			AND (loc.gds='Servi' OR loc.gds='VendeTravel' OR loc.gds='Universal Travel' OR loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
-			";
+			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -323,17 +333,19 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid  AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 			
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE 
-			con.isSatelite='1' 
-			AND bol.currency IN ('VEF','VES')
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
+			AND con.isSatelite='1' 
+			AND bol.currency = 'VEF' 
 			AND (loc.gds = 'Amadeus' OR  loc.gds = 'Kiu' OR loc.gds = 'Web Aerolinea')";
 
 			if ($_REQUEST["asesoras"])
@@ -365,20 +377,24 @@
 			UNION ALL 
 			(SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos')
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
 			$query.="INNER JOIN vtiger_account AS acc ON acc.accountid = con.accountid ";
 
 			$query.="INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE con.isSatelite='1'
-			AND (loc.gds='Servi' OR loc.gds='VendeTravel' OR loc.gds='Universal Travel' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
-			";
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') AND
+			loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
+			AND con.isSatelite='1'
+			AND (loc.gds='Servi' OR  loc.gds='Web Aerolinea' OR  loc.gds='Percorsi' OR  loc.gds='Kiu Internacional') 
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -411,11 +427,9 @@
 
 			$query="SELECT ".$campos."
 			FROM vtiger_localizadores AS loc 
-			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid AND bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			INNER JOIN vtiger_boletos AS bol ON bol.localizadorid=loc.localizadoresid 
 			INNER JOIN vtiger_registrodeventas AS rdv ON rdv.registrodeventasid=loc.registrodeventasid 
-				AND loc.registrodeventasid IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
-				AND loc.registrodeventasid IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) 
-			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Localizadores') 
+			INNER JOIN vtiger_crmentity AS en ON en.crmid = loc.localizadoresid
 			INNER JOIN vtiger_contactdetails AS con ON con.contactid = loc.contactoid ";
 
 			if ($_REQUEST["satelite"])
@@ -423,10 +437,15 @@
 
 			$query.="
 			INNER JOIN vtiger_users AS usu ON usu.id = en.smownerid
-			WHERE 
-			(loc.gds='Servi' OR loc.gds='VendeTravel' OR loc.gds='Universal Travel' OR loc.gds='Web Aerolinea' OR loc.gds='Percorsi' OR loc.gds='Kiu Internacional')
+			WHERE bol.boletosid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 AND setype='Boletos') 
+			AND loc.localizadoresid NOT IN (SELECT crmid FROM vtiger_crmentity WHERE deleted=1 
+			AND setype='Localizadores') 
+			AND (loc.gds='Servi' OR loc.gds='Web Aerolinea' OR loc.gds='Percorsi' OR loc.gds='Kiu Internacional')
 			AND bol.currency = 'USD' 
-			";
+			AND loc.registrodeventasid 
+			IN (SELECT registrodeventasid FROM vtiger_registrodeventascf WHERE cf_861 != '')
+			AND loc.registrodeventasid 
+			IN (SELECT DISTINCT registrodeventasid FROM vtiger_registrodepagos) ";
 
 			if ($_REQUEST["asesoras"])
 				$query.=" AND usu.id='".$_REQUEST["asesoras"]."' ";
@@ -467,13 +486,8 @@
 	$bnemitidos = 0;
 	$biemitidos = 0;
 	$bsemitidos = 0;
-	$totBoletosBs=0;
-	$totBoletosDol=0;
-	
-	//echo $_REQUEST["tventa"].$query;
-	
+
 	//RURIEPE 2/08/2016 - SE REALIZA RECORRIDO E LA CONSULTA EJECUTA PARA 
-	/* jmangarret 22jun2017- Se desactiva while de calculos y se pasa al while inferior
 	if($filtro = mysql_query($query))
 	{
 		if (mysql_num_rows($filtro) > 0)
@@ -481,16 +495,116 @@
 
 		     while ($row = mysql_fetch_array($filtro)) 
 		    {
-				SE COPIA A  WHILE SIGUIENTE
+		        //RURIEPE 2/08/2016 - CAPTURA DE TOTAL DE BOLTOS EMITIDOS DEPENDIENDO DE LA OPCION QUE SE EJECUTE
+		        if($row['status'] != 'Anulado')
+		        {
+		        	$bemitidos = $bemitidos + count($row["boletosid"]);
+
+		        	if($row['gds'] == "Servi" AND $row['status'] != "Anulado" AND  $row['currency'] == 'VEF')
+					{
+						$bemitidos = $bemitidos - 1;
+					}
+		        }
+		        //2/08/2016 RURIEPE - CONDICIONAL PARA SABER LOS TIPOS DE VUELOS E IR ALMACENANDO EL TOTAL EN LOS CONTAODRES YA INICIALIZADOS
+		        if($row['tipodevuelo'] == "Nacional" AND $row['status'] !== "Anulado" )
+		        {	
+		        	$bnemitidos = $bnemitidos + count($row["boletosid"]);
+
+		        	if($row['gds'] == "Servi" AND $row['status'] != "Anulado" AND  $row['currency'] == 'VEF')
+					{
+						$bnemitidos = $bnemitidos - 1;
+					}
+		        }
+		       	if ($row['tipodevuelo'] == "Internacional" AND $row['status'] != "Anulado")
+		        {
+		        	$biemitidos = $biemitidos + count($row["boletosid"]);
+
+		        	if($row['gds'] == "Servi" AND $row['status'] != "Anulado" AND  $row['currency'] == 'VEF')
+					{
+						$biemitidos = $biemitidos - 1;
+					}
+		        }
+		        if (($row['gds'] == "Servi" OR $row['gds'] == "Web Aerolinea" OR $row['gds'] == "Percorsi" OR $row['gds'] == "Kiu Internacional") AND $row['status'] != "Anulado" AND  $row['currency'] == 'USD')
+		        {
+		        	$bsemitidos = $bsemitidos+ count($row["boletosid"]);
+		        }
 		   	}
 		}
 	}
-	*/
 
+	//RURIEPE 05/10/2016 - CONDICION DONDE SI EL ESTATUS ES DIFERENTE DE CERO SE MOSTRARA LAS ESTADISTICAS EN CASO CONTRARIO SI ES IGULA a Anulado NO SE MOSTRARA ESTADISTICA
+	if($_REQUEST["estatus"] != 'Anulado')
+	{
+	// RURIEPE 2/08/2016 - CONDICION PARA VALIDAR CUAL OPCION FUE SELECCIONADA. 
+	if($_REQUEST['tventa'] == 1 OR $_REQUEST['tventa'] == 2 OR $_REQUEST['tventa'] == 3 
+	 OR $_REQUEST['satelite'] != ""  AND $_REQUEST["asesoras"]!="")
+	{
 ?>
-<div id="headerResumen">
-	
-</div>
+<h3>
+	<!--RURIEPE 3/08/2016 - TABLA PARA MOSTRAR RESUMEN DE TOTALES-->
+	<table>
+		<?php
+		//RURIEPE 3/08/2016 - CONDICIONAL PARA INDICAR QUE EL RESUMEN ES DE PROCESADOS O NO PROCESADOS
+		if($_REQUEST['procesado'] == '1'){?>
+		<tr>
+			
+			<td width=150></td>
+			<td width=410>Total Emitidos (Procesados): <?php echo $bemitidos?> </td>
+			<td width=300>Nacionales: <?php echo $bnemitidos?> </td>
+			<td width=300>Internacionales: <?php echo $biemitidos ?></td>
+			<td width=300>SOTOS: <?php echo $bsemitidos ?></td>
+		</tr>
+		<?php }else if($_REQUEST['procesado'] == '0'){ ?>
+		<tr>
+			<td width=150></td>
+			<td width=420>Total Emitidos (No Procesados): <?php echo $bemitidos ?> </td>
+			<td width=300>Nacionales: <?php echo $bnemitidos?> </td>
+			<td width=300>Internacionales: <?php echo $biemitidos ?></td>
+			<td width=300>SOTOS: <?php echo $bsemitidos ?></td>
+		</tr>
+		<?php }else if($_REQUEST['procesado'] == ''){ ?>
+		<tr>
+			<td width=150></td>
+			<td width=420>Total Emitidos: <?php echo $bemitidos ?> </td>
+			<td width=300>Nacionales: <?php echo $bnemitidos?> </td>
+			<td width=300>Internacionales: <?php echo $biemitidos ?></td>
+			<td width=300>SOTOS: <?php echo $bsemitidos ?></td>
+		</tr>
+		<?php } ?>
+	</table>
+</h3>
+<?php } //RURIEPE 3/08/2016 - ELSE PARA MOSTRAR RESUMEN DE TOTALES SOTOS
+else if ($_REQUEST['tventa'] == 4 ) {
+?>
+<h3>
+	<!--RURIEPE 3/08/2016 - TABLA PARA MOSTRAR RESUMEN DE TOTALES-->
+	<table>
+	<?php
+		//RURIEPE 3/08/2016 - CONDICIONAL PARA INDICAR QUE EL RESUMEN ES DE PROCESADOS O NO PROCESADOS PARA TOTALES SOTOS
+		if($_REQUEST['procesado'] == '1') { ?>
+		<tr>
+			<td width=50></td>
+			<td width=500>Total SOTOS (Procesados): <?php echo $bsemitidos ?></td>
+		</tr>
+		<?php } else if($_REQUEST['procesado'] == '0') { ?>
+		<tr>
+			<td width=50></td>
+			<td width=500>Total SOTOS (No Procesados): <?php echo $bsemitidos ?></td>
+		</tr>
+		<?php } else if($_REQUEST['procesado'] == '') { ?>
+		<tr>
+			<td width=50></td>
+			<td width=500>Total SOTOS: <?php echo $bsemitidos ?></td>
+		</tr>
+		<?php } ?>
+	</table>
+</h3>
+
+<?php
+
+}
+}
+ ?>
 
 <table class="table table-bordered listViewEntriesTable">
 	<thead>
@@ -533,6 +647,7 @@
 <?php
 
 
+
 if($filtro = mysql_query($query))
 		{
 		    if (mysql_num_rows($filtro) > 0)
@@ -551,47 +666,6 @@ if($filtro = mysql_query($query))
 			        	$resultado = mysql_query($query3);
 			        	$nombre = mysql_fetch_assoc($resultado);
 		        	}
-		        	//JMANGARRET - 23JUN2017 CONTENIDO WHILE ANTERIOR PARA USAR UN SOLO WHILE
-		        	//RURIEPE 2/08/2016 - CAPTURA DE TOTAL DE BOLTOS EMITIDOS DEPENDIENDO DE LA OPCION QUE SE EJECUTE
-			        if($row['status'] != 'Anulado')
-			        {
-			        	$bemitidos = $bemitidos + count($row["boletosid"]);
-
-			        	if($row['gds'] == "Servi" AND $row['status'] != "Anulado" AND  ($row['currency'] == 'VEF' OR $row['currency'] == 'VES'))
-						{
-							$bemitidos = $bemitidos - 1;
-						}
-						//JMANGARRET - 22/06/2017 - ACUM. DE TOTALES DE TARIFA
-						if ($row['currency'] == 'VEF' OR $row['currency'] == 'VES') $totBoletosBs	=$totBoletosBs 	+ $row["amount"];
-						if ($row['currency'] == 'USD') $totBoletosDol	=$totBoletosDol + $row["amount"];
-						
-						$arrayRegistroDeVentas[]=$row["registrodeventasid"];
-
-			        }
-			        //2/08/2016 RURIEPE - CONDICIONAL PARA SABER LOS TIPOS DE VUELOS E IR ALMACENANDO EL TOTAL EN LOS CONTAODRES YA INICIALIZADOS
-			        if($row['tipodevuelo'] == "Nacional" AND $row['status'] !== "Anulado" )
-			        {	
-			        	$bnemitidos = $bnemitidos + count($row["boletosid"]);
-
-			        	if($row['gds'] == "Servi" AND $row['status'] != "Anulado" AND  ($row['currency'] == 'VEF' OR $row['currency'] == 'VES'))
-						{
-							$bnemitidos = $bnemitidos - 1;
-						}
-			        }
-			       	if ($row['tipodevuelo'] == "Internacional" AND $row['status'] != "Anulado")
-			        {
-			        	$biemitidos = $biemitidos + count($row["boletosid"]);
-
-			        	if($row['gds'] == "Servi" AND $row['status'] != "Anulado" AND  ($row['currency'] == 'VEF' OR $row['currency'] == 'VES'))
-						{
-							$biemitidos = $biemitidos - 1;
-						}
-			        }
-			        //if (($row['gds'] == "Servi" OR $row['gds'] == "Web Aerolinea" OR $row['gds'] == "Percorsi" OR $row['gds'] == "Kiu Internacional") AND $row['status'] != "Anulado" AND  $row['currency'] == 'USD')
-			        if (in_array($row['gds'],array("Servi","VendeTravel","Universal Travel","Web Aerolinea","Percorsi","Kiu Internacional")) AND $row['status'] != "Anulado" AND  $row['currency'] == 'USD')			         
-			        {
-			        	$bsemitidos = $bsemitidos+ count($row["boletosid"]);
-			        }
 	  
 ?>
 
@@ -599,7 +673,7 @@ if($filtro = mysql_query($query))
 
 	<!--Check para cada fila-->
 	<td  width="5%" class="wide">
-		<input type="checkbox" value="<?=$row["localizadoresid"]?>" class="listViewEntriesCheckBox" boleto-id="<?=$row["boletosid"]?>"/>
+		<input type="checkbox" value="<?=$row["localizadoresid"]?>" class="listViewEntriesCheckBox"/>
 	</td>
 
 
@@ -654,7 +728,7 @@ if($filtro = mysql_query($query))
 <td class="listViewEntryValue wide" data-field-type="string" data-field-name="fecha_emision" nowrap><?=$format_fecha_emision?></td>
 
 <!--Array para mostrar campo Tarifa-->
-<td class="listViewEntryValue wide" data-field-type="currency" data-field-name="amount" nowrap align=right><?=number_format($row["amount"], 2, '.', ',')." ".$row['currency'];?></td>
+<td class="listViewEntryValue wide" data-field-type="currency" data-field-name="amount" nowrap><?=number_format($row["amount"], 2, '.', ',');?></td>
 
 <td nowrap class="wide">
 	<div class="actions pull-right">
@@ -679,116 +753,12 @@ if($filtro = mysql_query($query))
 				echo "Error en la consulta SQL: ".mysql_error();
 			}
 ?>
+
+</table>	
+</div>
+
 <?php 	
 	}
 	///FIN RESPONSE LISTAR RESULTADOS DE LA BUSQUEDA
 ?>
-<!--JMANGARRET - 23JUN2017 SUB TOTALES PARA RESUMEN DE ACUMULADORES DE AMOUNT-->
-<?php
-$ventas = implode(",",$arrayRegistroDeVentas);
-$sqlPagosBs="SELECT SUM(amount) AS totPagosBs  FROM vtiger_registrodepagos WHERE currency IN ('VEF','VES') AND registrodeventasid IN (".$ventas.")";
-$qryBs=mysql_query($sqlPagosBs);
-$totPagosBs=mysql_result($qryBs, 0);
-
-$sqlPagosDol="SELECT SUM(amount) AS totPagosDol FROM vtiger_registrodepagos WHERE currency='USD' AND registrodeventasid IN (".$ventas.")";
-$qryDol=mysql_query($sqlPagosDol);
-$totPagosDol=mysql_result($qryDol, 0);
-?>
-<tr>
-	<td colspan="6">&nbsp;</td>
-	<td align="right"><strong>Total Emitido Dolares.</strong></td>
-	<td align="right"><strong><?php echo number_format($totBoletosDol,2); ?></strong></td>
-	<td align="right"><strong>Total Pagos Dolares.</strong></td>
-	<td align="right"><strong><?php echo number_format($totPagosDol,2); ?></strong></td>
-</tr>
-<tr>
-	<td colspan="6">&nbsp;</td>
-	<td align="right"><strong>Total Emitido Bs.</strong></td>
-	<td align="right"><strong><?php echo number_format($totBoletosBs,2); ?></strong></td>
-	<td align="right"><strong>Total Pagos Bs.</strong></td>
-	<td align="right"><strong><?php echo number_format($totPagosBs,2); ?></strong></td>
-</tr>
-<!--JMANGARRET - 23JUN2017 - FIN-->
-</table>	
-</div>
-
-
 		
-<!--JMANGARRET - 23JUN2017 SE TRASLADA TABLA A FINAL Y LUEGO SE PASA EL HEADER CON JQUERY, CREANDO NUEVOS DIVS-->
-<!--RURIEPE 3/08/2016 - TABLA PARA MOSTRAR RESUMEN DE TOTALES-->
-<div id="tablaResumen">
-<h3>
-	<?php
-	//RURIEPE 05/10/2016 - CONDICION DONDE SI EL ESTATUS ES DIFERENTE DE CERO SE MOSTRARA LAS ESTADISTICAS EN CASO CONTRARIO SI ES IGULA a Anulado NO SE MOSTRARA ESTADISTICA
-	if($_REQUEST["estatus"] != 'Anulado')
-	{
-	// RURIEPE 2/08/2016 - CONDICION PARA VALIDAR CUAL OPCION FUE SELECCIONADA. 
-	if($_REQUEST['tventa'] == 1 OR $_REQUEST['tventa'] == 2 OR $_REQUEST['tventa'] == 3 
-	 OR $_REQUEST['satelite'] != ""  AND $_REQUEST["asesoras"]!="")
-	{
-	?>
-	<table >
-	<?php
-	//RURIEPE 3/08/2016 - CONDICIONAL PARA INDICAR QUE EL RESUMEN ES DE PROCESADOS O NO PROCESADOS
-	if($_REQUEST['procesado'] == '1'){?>
-	<tr>
-		
-		<td width=150></td>
-		<td width=410>Total Emitidos (Procesados): <?php echo $bemitidos?> </td>
-		<td width=300>Nacionales: <?php echo $bnemitidos?> </td>
-		<td width=300>Internacionales: <?php echo $biemitidos ?></td>
-		<td width=300>SOTOS: <?php echo $bsemitidos ?></td>
-	</tr>
-	<?php }else if($_REQUEST['procesado'] == '0'){ ?>
-	<tr>
-		<td width=150></td>
-		<td width=420>Total Emitidos (No Procesados): <?php echo $bemitidos ?> </td>
-		<td width=300>Nacionales: <?php echo $bnemitidos?> </td>
-		<td width=300>Internacionales: <?php echo $biemitidos ?></td>
-		<td width=300>SOTOS: <?php echo $bsemitidos ?></td>
-	</tr>
-	<?php }else if($_REQUEST['procesado'] == ''){ ?>
-	<tr>
-		<td width=150></td>
-		<td width=420>Total Emitidos: <?php echo $bemitidos ?> </td>
-		<td width=300>Nacionales: <?php echo $bnemitidos?> </td>
-		<td width=300>Internacionales: <?php echo $biemitidos ?></td>
-		<td width=300>SOTOS: <?php echo $bsemitidos ?></td>
-	</tr>
-	<?php } ?>
-	</table>
-	<?php } //RURIEPE 3/08/2016 - ELSE PARA MOSTRAR RESUMEN DE TOTALES SOTOS
-	else if ($_REQUEST['tventa'] == 4 ) {
-	?>
-	<h3>
-		<!--RURIEPE 3/08/2016 - TABLA PARA MOSTRAR RESUMEN DE TOTALES-->
-		<table>
-		<?php
-			//RURIEPE 3/08/2016 - CONDICIONAL PARA INDICAR QUE EL RESUMEN ES DE PROCESADOS O NO PROCESADOS PARA TOTALES SOTOS
-			if($_REQUEST['procesado'] == '1') { ?>
-			<tr>
-				<td width=50></td>
-				<td width=500>Total SOTOS (Procesados): <?php echo $bsemitidos ?></td>
-			</tr>
-			<?php } else if($_REQUEST['procesado'] == '0') { ?>
-			<tr>
-				<td width=50></td>
-				<td width=500>Total SOTOS (No Procesados): <?php echo $bsemitidos ?></td>
-			</tr>
-			<?php } else if($_REQUEST['procesado'] == '') { ?>
-			<tr>
-				<td width=50></td>
-				<td width=500>Total SOTOS: <?php echo $bsemitidos ?></td>
-			</tr>
-			<?php } ?>
-		</table>
-	</h3>
-<?php
-}
-}
-?>
-</h3>
-</div>
-<script type="text/javascript">
-	$('#tablaResumen').appendTo('#headerResumen');
-</script>

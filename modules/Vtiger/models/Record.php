@@ -267,7 +267,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 	 */
 	public static function getSearchResult($searchKey, $module=false) {		
 		$db = PearDatabase::getInstance();
-		global $log;
+		global $log;		
 		$query = 'SELECT label, crmid, setype, createdtime FROM vtiger_crmentity WHERE label LIKE ? AND vtiger_crmentity.deleted = 0';
 		$params = array("%$searchKey%");
 		
@@ -275,34 +275,9 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 			$query .= ' AND setype = ?';
 			$params[] = $module;
 		}
-		//$log->debug("busqueda global getSearchResult... ".$query); 
-		//Modified by jmangarret 19/05/2015
-		/*
-		if ($module=="RegistroDeVentas" || $module=="Boletos" || $module=="VentaDeProductos"){
-			$query = $query ." UNION ALL " . 'select CONCAT(cf_1618, " ",registrodeventasname) as label, R2.registrodeventasid as crmid, "RegistroDeVentas" as setype, E.createdtime as createdtime ';
-			$query = $query . 'from vtiger_registrodeventas as R1, vtiger_registrodeventascf as R2, vtiger_crmentity as E ';
-			$query = $query . 'where R1.registrodeventasid=R2.registrodeventasid AND R2.registrodeventasid = E.crmid AND E.deleted = 0 ';
-			$query = $query . 'AND (R2.cf_1618 like ? OR R2.cf_854 like ? OR R1.registrodeventasname like ?) ';	
-			$params = array_merge($params ,array("%$searchKey%","%$searchKey%","%$searchKey%"));
-			
-			$query = $query ." UNION ALL " . 'select localizador as label, B.boletosid as crmid, "Boletos" as setype, E.createdtime as createdtime ';
-			$query = $query . 'from vtiger_boletos AS B, vtiger_crmentity AS E ';
-			$query = $query . 'where B.boletosid = E.crmid AND E.deleted = 0 AND (B.localizador like ? or B.boleto1 like ?)';	
-			$params = array_merge($params ,array("%$searchKey%","%$searchKey%"));
-			
-			
-		}
-		*/
 
-		//$params = array_merge($params ,array("%$searchKey%","%$searchKey%"));
-		//Remove the ordering for now to improve the speed
-		//$query .= ' ORDER BY createdtime DESC';
-
-	
 		$result = $db->pquery($query, $params);
 		$noOfRows = $db->num_rows($result);
-
-		//die($query);
 
 		$moduleModels = $matchingRecords = $leadIdsList = array();
 		for($i=0; $i<$noOfRows; ++$i) {
@@ -318,6 +293,10 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 			if ($row['setype'] === 'Leads' && $convertedInfo[$row['crmid']]) {
 				continue;
 			}
+
+			//////jmangarret 06ago2017 - Filtramos data de Satelite //////
+			include("RecordCustom.inc.php");
+			
 			if(Users_Privileges_Model::isPermitted($row['setype'], 'DetailView', $row['crmid'])) {
 				$row['id'] = $row['crmid'];
 				$moduleName = $row['setype'];

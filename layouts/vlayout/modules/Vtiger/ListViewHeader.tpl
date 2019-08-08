@@ -217,6 +217,15 @@
 							<option value="">--Seleccione--</option>
 						</select>
 					</td>
+					<td class="fieldLabel wide">
+						<a href="javascript:void(0);">
+						<button  id="{$MODULE}_listView_basicAction_Buscar" class="btn">								
+						<strong>Buscar</strong> 
+						</button>
+						<div id="loader"></div>
+						</a>
+						<span id="searchIcon" class="add-on search-icon"><i class="icon-white icon-search "></i></span> 
+					</td>
 				</tr><tr>
 					<td class="fieldLabel wide">
 						<span> GDS: </span><br>
@@ -251,12 +260,12 @@
 						<input type="checkbox" name="checkbox-procesado" id="checkbox-procesado"> 
 						</td>-->
 						<td class="fieldLabel wide">
-						<a href="javascript:void(0);">
-					<button  id="{$MODULE}_listView_basicAction_Buscar" class="btn">								
-						<strong>Buscar</strong> 
+						<a href="javascript:void(0);" title="Busque y Marque los boletos a exportar">
+						<button  id="{$MODULE}_listView_basicAction_Excel" class="btn">								
+						<strong>Excel</strong> 
 						</button>
+						<div id="loader"></div>
 						</a>
-						<span id="searchIcon" class="add-on search-icon"><i class="icon-white icon-search "></i></span> 
 					</td>
 						
 				</tr>
@@ -339,7 +348,8 @@
 				"procesado"	  : $("#procesado-select").val(),
 				"aerolinea"	  : $("#aerolinea-select").val()
 				};	
-				jQuery.ajax({
+				$('div.listViewEntriesDiv.contents-bottomscroll').html("<center><img src='themes/images/loading.gif'></center>");
+				$.ajax({
 					data: ajax_data,
 					url: 'modules/Localizadores/ajaxReporteSatelites.php',
 					type: 'get',
@@ -350,6 +360,38 @@
 		    });	
 		});						
 		</script>
+		<script type="text/javascript">										 
+		 $(document).ready(function() {	
+	 		$('#{$MODULE}_listView_basicAction_Excel').click(function(){
+		        var idsArray = new Array();						 
+		        $("input[class=listViewEntriesCheckBox]:checked").each(function() {				   					        	
+		            idsArray.push($(this).attr('boleto-id'));						            
+		        });				
+		        var chequeados=idsArray.length;								        		       
+		        if (chequeados>0){
+		            var ajax_data1 = {
+		            "userid" : $("#current_user_id").val(),						
+					"accion" : "excelLocalizadores",					
+					"id" : idsArray					
+					};		
+					jQuery.ajax({
+						data: ajax_data1,
+						url: 'modules/Localizadores/ajaxProcesarList_Loc.php',
+						type: 'POST',
+						success: function(response){														
+							var url='data:application/vnd.ms-excel,'+encodeURIComponent(response);
+							location.href=url;
+							return false;
+						}
+					});
+				}else{
+					alert("Debe Buscar y Marcar los boletos a exportar...");
+					return false;
+				}
+		    });	
+		});						
+		</script>
+
 
 	{/if}
 	<!--fin jmangarret BUSQUEDA POR REPORTE PARA SATELITES feb2016!-->	

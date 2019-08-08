@@ -206,18 +206,9 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
 
 		$startIndex = $pagingModel->getStartIndex();
 		$pageLimit = $pagingModel->getPageLimit();
-		//Modified by jmangarret 16jun2015
-		if ($current_user->roleid=="H9"){
-			$listQuery .= ' AND smownerid='.$current_user->id;
-		}
-		//Modified by jmangarret 13ene2016 popUP seleccionar localizadores desde Registro de Ventas
-		if ($moduleName=="Localizadores" && $sourceModule=="RegistroDeVentas"){
-			$listQuery .= ' AND vtiger_localizadores.procesado=0';	
-		}
-		//Modified by jmangarret 03feb2016 popUP seleccionar cuentas desde Comsiones Satelites
-		if ($moduleName=="Accounts" && $sourceModule=="ComisionSatelites"){
-			$listQuery .= ' AND vtiger_account.account_type="Satelite"';	
-		}		
+		
+		//include para filtros personalizados del listview jmangarret 16ene2017
+		include("ListViewCustom.inc.php");	
 
 		if(!empty($orderBy)) {
             if($orderByFieldModel && $orderByFieldModel->isReferenceField()){

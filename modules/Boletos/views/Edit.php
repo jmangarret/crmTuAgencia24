@@ -27,7 +27,7 @@ class Boletos_Edit_View extends Vtiger_Edit_View {
         }
 
 		$viewer = $this->getViewer($request);
-
+		if ($request->get('record'))
 		$viewer->assign('IMAGE_DETAILS', $recordModel->getImageDetails());
 
 		parent::process($request);
